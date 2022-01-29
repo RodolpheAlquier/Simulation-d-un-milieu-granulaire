@@ -47,10 +47,12 @@ class Grain
 
  public :
 
+  Grain();
   Grain(Vecteur r0, double rayon0, double rho0);
 
   double get_rayon() const;
-
+  Vecteur get_r();
+  Vecteur get_v();
   double get_m() const;
   void set_m(double masse);
   

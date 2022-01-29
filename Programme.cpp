@@ -21,10 +21,12 @@ double rayon = 1.;
 //Definition de la fonction system qui donne l'équation du mvt d'une particule par rapport aux autres
 
 
-void system (vector<double> q, vector<double> qp, double t)
+void system (vector<double> q, vector<double> qp, double t,int i)
 {
 	double x = q[0], y = q[1];
 	double v_x = q[2], v_y = q[3];
+
+	double x_2,y_2,vx_2,vy_2;
 	
 	qp[0] = v_x;
 	qp[1] = v_y;
@@ -32,9 +34,11 @@ void system (vector<double> q, vector<double> qp, double t)
 	qp[2] = 0;
 	qp[3] = 0;
 
-	for(int j=0; j<=N; j++) {
-	  int  x_2= 0; //a definir
-	  int y_2=0; // a definir
+	for(int j=i+1; j<=N; j++) {
+	  double x_2= tab_grain[j].get_r().get_x();
+	  double y_2=tab_grain[j].get_r().get_y();
+
+	  
 	  d =pow( ( pow(x-x_2,2)+pow(y-y_2,2) ), 0.5 );
 	  if (d<2*rayon){
 	    delta_t=2*rayon-d;
@@ -44,8 +48,9 @@ void system (vector<double> q, vector<double> qp, double t)
 	    qp[2] += 1./m * (K_t*pow(delta_t,3./2.)*cos(theta) - K_n*pow(delta_n,3./2.)*sin(theta));
 	    qp[3] += 1./m * (K_t*pow(delta_t,3./2.)*sin(theta) + K_n*pow(delta_n,3./2.)*cos(theta));
 	  }
-	
 	}
+
+	return qp;
 	
 }
 
@@ -84,6 +89,8 @@ void rk4 (void (*system)(vector<double>, vector<double>,double), vector<double> 
 	{
 		q[i] += dt/6.*(p1[i] + 2*p2[i] + 2*p3[i] + p4[i]);
 	}
+
+	return q;
 }
 
 
@@ -96,37 +103,70 @@ int main(){
 
 
   
-  N=100;
+  int N=100;
   srand(time(NULL));
-  for (int i=1;i<=N;i++){
-    Vecteur r1 ( rand() % L , rand() % H );
 
-    string g = "g" + to_string(i);  
-    // Grain g+to_sting(i)(r1,rayon,rho) ?? ;  
-
-  }
-  Vecteur r1 (0.,0.);
-  Vecteur r2 (1.,0.);
+  //Initialisation du tableau Grains
   
-  vector<double> x1_list, y1_list;
-  vector<double> x2_list, y2_list;
-  Grain g1(r1,rayon,rho), g2(r2,rayon,rho);
+  Grain * tab_grain ;
+  tab_grain = new Grain[N];
+  for (int i=0;i<N;i++){
+    Vecteur r1 ( rand() % L , rand() % H );
+    tab_grain[i] = Grain(r1, rayon,rho);  
+  }
+  
 	
   int iteration = 1000;
-  double temps = 1.;
+  double t= 1.;
   double dt;
   dt = temps/iteration;
-	
-  double t;
-	
-  double x1, y1, vx1, vy1;
-  double x2, y2, vx2, vy2;
-	
-  vector<double> q1 (4), q2 (4);
-	
-	
-	
-  t = 0;
+
+  //Verification de la bonne initialisation
+  
+  for(int k=0; k< N; k++){
+    cout<< tab_grain[k].get_r().get_x()<<"  " <<tab_grain[k].get_r().get_y() <<endl;
+   }
+
+  //Iteraction
+  double x1,y1,vx1,vy1;
+  double x2,y2,vx2,vy2;
+
+  vector<double> q1 (4);
+  vector<double> q_r(2),q_v(2);
+  
+
+  q1= 0,0,2,3
+
+  
+  Grain * tab_grain_syst ;
+  tab_grain_syst = new Grain[N];
+
+  
+  for (int t=0; l<iterations; t=t+dt){
+    for (int i=0; i<N ; i++){
+      
+      x1 = tab_grain[k].get_r().get_x();
+      y1 = tab_grain[k].get_r().get_y();
+      vx1 = tab_grain[k].get_v().get_x();
+      vy1 = tab_grain[k].get_v().get_y();
+      
+      q1[0] = x1;
+      q1[1] = y1;
+      q1[2] = vx1;
+      q1[3] = vy1;
+
+
+      q2= rk4 (void (*system)(vector<double>, vector<double>,double), vector<double> q1, double t, double dt,int i);
+
+      qr= q2[0],q2[1];
+      
+      tab_grain_syst[i] = Grain(qr, rayon,rho);
+    }
+    
+    
+
+  }
+
   cout<<4<<endl;
 	
   return 0;

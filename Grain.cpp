@@ -64,7 +64,6 @@ Vecteur operator*(double a, const Vecteur& vecteur1){
     return Vecteur(a*vecteur1.get_x() , a* vecteur1.get_y());
 }
 
-
 //Constructeurs: Grains
 
 /*Grain::Grain(double x0, double y0, double r0, double rho0){ //Construction d'un point
@@ -117,7 +116,15 @@ void Grain::set_a_y(double a_ord){
 }
  */
 
+Grain::Grain(){ //Construction d'un point
+  r=Vecteur();                           //sans vitesse ni acceleratio
+  v=Vecteur();
+  a=Vecteur();
 
+  rayon=0;
+  rho=0;
+  m=(4/3.) * M_PI * rho*rayon*rayon*rayon;
+}
 
 
 Grain::Grain(Vecteur r0, double rayon0, double rho0){ //Construction d'un point
@@ -133,10 +140,17 @@ Grain::Grain(Vecteur r0, double rayon0, double rho0){ //Construction d'un point
 // Get :Pour obtenir la position,vitesse,acc sans le modifier (RK)
 // Set : Pour changer la valeur (move)
 
-double Grain::get_m() const
-{
+double Grain::get_m() const{
     return m;
 }
+
+Vecteur Grain::get_r(){
+  return r;
+  }
+
+Vecteur Grain::get_v(){
+  return v;
+  }
 
 void Grain::set_m(double masse)
 {
