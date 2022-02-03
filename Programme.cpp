@@ -12,103 +12,195 @@ int n = 4;                           //Taille de vector pour Runge Kutta
 double delta_t = 0., delta_n = 0.;   //Parametres du systeme
 double m = 0., theta = 0.;           //Masse et angles entre les particules
 double d =0.;                        //Distance entre particules
-int N=100;                           //Nombre de particules
+int N_grain=100;                           //Nombre de particules
 int constexpr L=100;
 int constexpr H=200;                 //Longueur et hauteur de la boîte
 double rayon = 1.;
+double rho = 1.;
+
 
 
 //Definition de la fonction system qui donne l'équation du mvt d'une particule par rapport aux autres
 
 
-void system (vector<double> q, vector<double> qp, double t ,vector<Grain>tab_grain ,int i)
+
+void system (double* q, double* qp, double t)
 {
 	double x = q[0], y = q[1];
 	double v_x = q[2], v_y = q[3];
-
-	double x_2,y_2,vx_2,vy_2;
 	
 	qp[0] = v_x;
 	qp[1] = v_y;
-
-	qp[2] = 0;
-	qp[3] = 0;
-
-	for(int j=i+1; j<=N; j++) {
-	  double x_2= tab_grain[j].get_r().get_x();
-	  double y_2=tab_grain[j].get_r().get_y();
-
-	  
-	  d =pow( ( pow(x-x_2,2)+pow(y-y_2,2) ), 0.5 );
-	  if (d<2*rayon){
-	    delta_t=2*rayon-d;
-	    delta_n=2*sqrt(pow(rayon,2) -pow((d/2),2)) ;
-	    theta = atan((y-y_2) /(x-x_2,2));
-	    
-	    qp[2] += 1./m * (K_t*pow(delta_t,3./2.)*cos(theta) - K_n*pow(delta_n,3./2.)*sin(theta));
-	    qp[3] += 1./m * (K_t*pow(delta_t,3./2.)*sin(theta) + K_n*pow(delta_n,3./2.)*cos(theta));
-	  }
-	}	
+	qp[2] = 1./m * (K_t*pow(delta_t,3./2.)*cos(theta) - K_n*pow(delta_n,3./2.)*sin(theta));
+	qp[3] = 1./m * (K_t*pow(delta_t,3./2.)*sin(theta) + K_n*pow(delta_n,3./2.)*cos(theta));
+	
+	
 }
 
 
+
+
+
+
 //Definition de la fontion Runge-Kutta
-void rk4 (void (*system)(vector<double>, vector<double>,double,vector<Grain>,int), vector<double> q, double t, double dt,vector<Grain> tab_grain ,int i)
+/*
+void rk4 (void (*system)(double*, double*,double, double), double* q, double t, double dt)
 {
-	vector<double> p1, p2, p3, p4;
+	double *p1, *p2, *p3, *p4;
 	vector<double> p2_calcul, p3_calcul, p4_calcul;
-  
-	   system(q,p1,t,tab_grain,i);
 	
-	for(int i = 0; i<n; i++) 
+	p1 = (double*)malloc(4*sizeof(double));
+	p2 = (double*)malloc(4*sizeof(double));
+	p3 = (double*)malloc(4*sizeof(double));
+	p4 = (double*)malloc(4*sizeof(double));
+	
+	system(q,p1,t);
+	
+	for(int i = 0; i<4; i++) 
 	{
 		p2_calcul[i] = p1[i]*dt/2. + q[i];
 	}
 	
-	system(p2_calcul,p2,t + dt/2.,tab_grain,i);
+	system(p2_calcul,p2,t + dt/2.);
 	
-	for(int i = 0; i<n; i++) 
+	for(int i = 0; i<4; i++) 
 	{
 		p3_calcul[i] = p2[i]*dt/2. + q[i];
 	}
 	
-	system(p3_calcul,p3,t + dt/2.,tab_grain,i);
+	system(p3_calcul,p3,t + dt/2.);
 	
-	for(int i = 0; i<n; i++) 
+	for(int i = 0; i<4; i++) 
 	{
 		p4_calcul[i] = p3[i]*dt + q[i];
 	}
 	
-	system(p4_calcul,p4,t + dt,tab_grain,i);
+	system(p4_calcul,p4,t + dt);
 	
 	
-	for(int i = 0; i<n; i++) 
+	for(int i = 0; i<4; i++) 
 	{
 		q[i] += dt/6.*(p1[i] + 2*p2[i] + 2*p3[i] + p4[i]);
 	}
+	
+	free(p1);
+	free(p2);
+	free(p3);
+	free(p4);
+}
+*/
+
+
+	
+ //Initialisation du tableau Grains
+	
+ void initialization (Grain* tab_grain){
+   for (int i = 0; i<N_grain; i++){
+     Vecteur r0 ( rand() % L , rand() % H );  
+     double rayon = 1;
+     double rho = 1.;
+     Grain my_grain(r0,rayon,rho);
+     
+     tab_grain[i] = my_grain;
+     
+   }
+ }
+
+ 
+
+vector<int> contact_list (Grain* tab_grain, int index_grain)
+
+/**
+ * @brief Takes a tab of grain, the index of one of them  
+ * @return Index of grains in contact with the grain index_grain
+ */
+ 
+{
+  vector<int> list_contact;
+	
+  Grain main_grain = tab_grain[index_grain];
+  double x = main_grain.r.get_x();
+  double y = main_grain.r.get_y();
+  double r = main_grain.get_rayon();
+	
+  for (int i = 0; i < N_grain; i++)
+    {
+      double X = tab_grain[i].r.get_x();
+      double Y = tab_grain[i].r.get_y();
+      double R = tab_grain[i].get_rayon();
+      
+      if (sqrt((X-x)*(X-x)+(Y-y)*(Y-y)) < R+r and i != index_grain) // Does not consider the grain "index_grain" in contact_list
+	list_contact.push_back(i);
+      
+    }
+  
+  return list_contact;
 }
 
 
+
+
+
+
+
+
+
+
+ 
+void contact (Grain* tab_grain, Grain* tab_grain_copy, int index_grain)
+{
+  vector<int> list_contact = contact_list(tab_grain, index_grain); 
+}
+
+
+
+
+void copy_tab(Grain* tab_grain , Grain* tab_grain_syst){
+  for(int i; i<N_grain;i++){
+    double  X = tab_grain[i].r.get_x();
+    double  Y = tab_grain[i].r.get_y();
+    double R = tab_grain[i].get_rayon();
+    double Rho = tab_grain[i].get_rho();
+
+    Vecteur R0 ( X , Y );  
+   
+    Grain my_grain(R0,R,Rho);
+
+    tab_grain_syst[i]=my_grain;
+  }
+}
+
+
+void le_temps_passe(Grain* tab_grain,double temps, double dt){
+  for (double t; t<temps; t=t+dt){
+    Grain * tab_temp;
+
+    tab_temp = (Grain*)malloc(N_grain*sizeof(Grain));
+    copy_tab(tab_grain,tab_temp);
+    for(int k; k< N_grain; k++){
+      vector<int> _list;
+      contact_list(tab_grain,k)
+      //changement de position avec la fonction systeme
+      
+
+    cout<<t<<endl;
+    delete[] tab_temp;   
+  }
+
+
+}
+
+
+
+
+
+ 
+
+ 
+
 int main(){
 
-  double rayon = 1.;
-  double rho = 1.;
-  int constexpr L=100;
-  int constexpr H=200;                   //Longueur et hauteur de la boîte
-
-
-  
-  int N=100;
   srand(time(NULL));
-
-  //Initialisation du tableau Grains
-  
-  Grain * tab_grain ;
-  tab_grain = new Grain[N];
-  for (int i=0;i<N;i++){
-    Vecteur r1 ( rand() % L , rand() % H );
-    tab_grain[i] = Grain(r1, rayon,rho);  
-  }
   
 	
   int iteration = 1000;
@@ -116,11 +208,41 @@ int main(){
   double dt;
   dt = temps/iteration;
 
+
+  	
+  Grain* tab_grain;
+  vector<int> _list;
+  
+  tab_grain = (Grain*)malloc(N_grain*sizeof(Grain));
+  
+  initialization(tab_grain);
+  
+ 
+  
+  _list = contact_list(tab_grain,2);
+	 
+  cout<<_list.size()<<endl;
+
+
+
+
+
+  
+  
   //Verification de la bonne initialisation
   
-  for(int k=0; k< N; k++){
-    cout<< tab_grain[k].get_r().get_x()<<"  " <<tab_grain[k].get_r().get_y() <<endl;
+  for(int k=0; k< N_grain; k++){
+    // cout<< tab_grain[k].r.get_x()<<"  " <<tab_grain[k].r.get_y() <<endl;
    }
+
+  for (int i = 0; i <_list.size(); i++){
+    // cout << _list[i]<<"list" << endl;
+  } //Changer rayon à 10 pour la verification Ok
+
+
+
+
+  
 
   //Iteraction
   double x1,y1,vx1,vy1;
@@ -131,11 +253,10 @@ int main(){
   vector<double> q_r(2),q_v(2);
   
   
-  Grain * tab_grain_syst ;
-  tab_grain_syst = new Grain[N];
+
 
   
-  for (int t=0; t<iteration; t=t+dt){
+  /* for (int t=0; t<iteration; t=t+dt){
     for (int i=0; i<N ; i++){
       
       x1 = tab_grain[i].get_r().get_x();
@@ -154,13 +275,34 @@ int main(){
       q_r[0]= q2[0], q_r[1]=q2[1];
       
       tab_grain_syst[i] = Grain(q_r, rayon,rho);
+
+
+  
+
+
     }
     
     
 
-  }
+  }*/
 
-  cout<<4<<endl;
+ 
+Grain * tab_grain_syst ;
+tab_grain_syst =(Grain*)malloc(N_grain*sizeof(Grain));
+copy_tab(tab_grain,tab_grain_syst);
+  
+ for(int k=0; k< N_grain; k++){
+   tab_grain_syst[k].r.set_x(1);
+   cout<< tab_grain_syst[k].r.get_x()<<" system  " <<tab_grain[k].r.get_x()<<"original"<<endl;
+   }
+  
+ le_temps_passe(tab_grain,30,0.01);
 	
   return 0;
+
+
+
 }
+
+
+
