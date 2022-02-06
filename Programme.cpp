@@ -15,7 +15,7 @@ double d =0.;                        //Distance entre particules
 int N_grain=100;                           //Nombre de particules
 int constexpr L=100;
 int constexpr H=200;                 //Longueur et hauteur de la boîte
-double rayon = 1.;
+double rayon = 10.;
 double rho = 1.;
 
 
@@ -97,7 +97,7 @@ void rk4 (void (*system)(double*, double*,double, double), double* q, double t, 
  void initialization (Grain* tab_grain){
    for (int i = 0; i<N_grain; i++){
      Vecteur r0 ( rand() % L , rand() % H );  
-     double rayon = 1;
+     double rayon = 10;
      double rho = 1.;
      Grain my_grain(r0,rayon,rho);
      
@@ -172,23 +172,54 @@ void copy_tab(Grain* tab_grain , Grain* tab_grain_syst){
 
 
 void le_temps_passe(Grain* tab_grain,double temps, double dt){
+  Grain * tab_temp;
+  tab_temp = (Grain*)malloc(N_grain*sizeof(Grain));
   for (double t; t<temps; t=t+dt){
-    Grain * tab_temp;
-
-    tab_temp = (Grain*)malloc(N_grain*sizeof(Grain));
     copy_tab(tab_grain,tab_temp);
     for(int k; k< N_grain; k++){
-      vector<int> _list;
-      contact_list(tab_grain,k)
+      vector<int> _list_pos;
+      _list_pos = contact_list(tab_grain,k);
+      cout<<t<<endl;
+      cout<<_list_pos.size() <<" time: " << t << " particule: " << k  <<endl;
       //changement de position avec la fonction systeme
-      
+      // delete [] _list_pos;
+    }
+    cout<<t<<endl;   
 
-    cout<<t<<endl;
-    delete[] tab_temp;   
+
   }
 
 
 }
+
+void Conditions_limites(Grain* tab_grain,double temps, double dt){
+   for(int k; k< N_grain; k++){
+     double x_lim = tab_grain[k].get_r().get_x();
+     double y_lim = tab_grain[k].get_r().get_y();
+     double vx_lim = tab_grain[k].get_v().get_x();
+     double vy_lim = tab_grain[k].get_v().get_y();
+     if( x_lim > L){
+       tab_grain[k].set_r().set_x(L);
+       tab_grain[k].set_v().set_x(-vx_lim);
+     }
+      if( x_lim < 0){
+       tab_grain[k].get_r().set_x(0);
+       tab_grain[k].set_v().set_x(-vx_lim);
+     }
+      if( y_lim > H){
+       tab_grain[k].get_r().set_y(H);
+       tab_grain[k].set_v().set_y(-vy_lim);
+     }
+      if( x_lim < 0){
+       tab_grain[k].get_r().set_x(0);
+       tab_grain[k].set_v().set_y(-vy_lim);
+     }
+     
+	 
+       
+}
+
+
 
 
 
@@ -291,13 +322,12 @@ Grain * tab_grain_syst ;
 tab_grain_syst =(Grain*)malloc(N_grain*sizeof(Grain));
 copy_tab(tab_grain,tab_grain_syst);
   
- for(int k=0; k< N_grain; k++){
+/* for(int k=0; k< N_grain; k++){
    tab_grain_syst[k].r.set_x(1);
    cout<< tab_grain_syst[k].r.get_x()<<" system  " <<tab_grain[k].r.get_x()<<"original"<<endl;
    }
-  
+*/
  le_temps_passe(tab_grain,30,0.01);
-	
   return 0;
 
 
