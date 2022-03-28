@@ -39,9 +39,6 @@ void system (double* q, double* qp, double t)
 
 
 
-
-
-
 //Definition de la fontion Runge-Kutta
 /*
 void rk4 (void (*system)(double*, double*,double, double), double* q, double t, double dt)
@@ -176,15 +173,20 @@ void le_temps_passe(Grain* tab_grain,double temps, double dt){
   tab_temp = (Grain*)malloc(N_grain*sizeof(Grain));
   for (double t; t<temps; t=t+dt){
     copy_tab(tab_grain,tab_temp);
-    for(int k; k< N_grain; k++){
-      vector<int> _list_pos;
-      _list_pos = contact_list(tab_grain,k);
-      cout<<t<<endl;
-      cout<<_list_pos.size() <<" time: " << t << " particule: " << k  <<endl;
+   
+    for(int k=0; k< N_grain; k++){
+      tab_temp[k].r.set_x(t);
+      if (k==1){
+	cout<< tab_temp[k].r.get_x()<<endl;
+      }
+      //vector<int> _list_pos;
+      //_list_pos = contact_list(tab_grain,k);
+      // cout<<t<<endl;
+      //cout<<_list_pos.size() <<" time: " << t << " particule: " << k  <<endl;
       //changement de position avec la fonction systeme
       // delete [] _list_pos;
     }
-    cout<<t<<endl;   
+    cout<<"Tableau au temps : "<<t<<endl;   
 
 
   }
@@ -199,23 +201,23 @@ void Conditions_limites(Grain* tab_grain,double temps, double dt){
      double vx_lim = tab_grain[k].get_v().get_x();
      double vy_lim = tab_grain[k].get_v().get_y();
      if( x_lim > L){
-       tab_grain[k].set_r().set_x(L);
-       tab_grain[k].set_v().set_x(-vx_lim);
+       tab_grain[k].r.set_x(L);
+       tab_grain[k].v.set_x(-vx_lim);
      }
       if( x_lim < 0){
-       tab_grain[k].get_r().set_x(0);
-       tab_grain[k].set_v().set_x(-vx_lim);
+       tab_grain[k].r.set_x(0);
+       tab_grain[k].v.set_x(-vx_lim);
      }
       if( y_lim > H){
-       tab_grain[k].get_r().set_y(H);
-       tab_grain[k].set_v().set_y(-vy_lim);
+       tab_grain[k].r.set_y(H);
+       tab_grain[k].v.set_y(-vy_lim);
      }
       if( x_lim < 0){
-       tab_grain[k].get_r().set_x(0);
-       tab_grain[k].set_v().set_y(-vy_lim);
+       tab_grain[k].r.set_x(0);
+       tab_grain[k].v.set_y(-vy_lim);
      }
      
-	 
+   }	 
        
 }
 
@@ -228,6 +230,17 @@ void Conditions_limites(Grain* tab_grain,double temps, double dt){
  
 
  
+
+
+
+
+
+
+
+
+
+
+
 
 int main(){
 
@@ -257,22 +270,61 @@ int main(){
 
 
 
-
+  //VERIFICATIONS:
   
   
-  //Verification de la bonne initialisation
+  //VERIFICATION de la bonne initialisation
   
-  for(int k=0; k< N_grain; k++){
-    // cout<< tab_grain[k].r.get_x()<<"  " <<tab_grain[k].r.get_y() <<endl;
+  /* for(int k=0; k< N_grain; k++){
+    cout<< tab_grain[k].r.get_x()<<"  " <<tab_grain[k].r.get_y() <<endl;
    }
 
   for (int i = 0; i <_list.size(); i++){
     // cout << _list[i]<<"list" << endl;
   } //Changer rayon à 10 pour la verification Ok
 
+  */
 
 
 
+ //VERIFICATION que la copie du tableau fonction bien
+
+
+
+ /*
+Grain * tab_grain_syst ;
+tab_grain_syst =(Grain*)malloc(N_grain*sizeof(Grain));
+copy_tab(tab_grain,tab_grain_syst);
+  
+for(int k=0; k< N_grain; k++){
+   tab_grain_syst[k].r.set_x(1);
+   cout<< tab_grain_syst[k].r.get_x()<<" system  " <<tab_grain[k].r.get_x()<<"original"<<endl;
+   }
+   // le_temps_passe(tab_grain,30,0.01);
+
+//Ok
+*/
+
+
+  //VERIFICATION de la fontion le temps passe
+
+
+  //le_temps_passe(tab_grain, temps, dt);
+
+  //Ok
+  
+
+
+
+
+
+
+
+
+
+
+  
+  //VERIFICATION de l'iteraction
   
 
   //Iteraction
@@ -306,28 +358,13 @@ int main(){
       q_r[0]= q2[0], q_r[1]=q2[1];
       
       tab_grain_syst[i] = Grain(q_r, rayon,rho);
+ }    
+ }*/
 
-
-  
-
-
-    }
-    
-    
-
-  }*/
 
  
-Grain * tab_grain_syst ;
-tab_grain_syst =(Grain*)malloc(N_grain*sizeof(Grain));
-copy_tab(tab_grain,tab_grain_syst);
+
   
-/* for(int k=0; k< N_grain; k++){
-   tab_grain_syst[k].r.set_x(1);
-   cout<< tab_grain_syst[k].r.get_x()<<" system  " <<tab_grain[k].r.get_x()<<"original"<<endl;
-   }
-*/
- le_temps_passe(tab_grain,30,0.01);
   return 0;
 
 
