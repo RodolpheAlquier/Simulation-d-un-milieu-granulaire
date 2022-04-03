@@ -154,6 +154,99 @@ double angle_collision(Grain grain1, Grain grain2)
 	return theta1 - theta2;
 }
 
+
+
+
+
+
+
+
+void loi_hertz(Grain grain1, Grain grain2)
+{
+        double kt=1;
+        double kn=1;
+
+	
+        double v1x = grain1.v.get_x();
+	double v1y = grain1.v.get_y();
+	double v1 = sqrt(v1x*v1x + v1y*v1y);
+	double m1 = grain1.get_m();
+	
+	double v2x = grain2.v.get_x();
+	double v2y = grain2.v.get_y();
+	double v2 = sqrt(v2x*v2x + v2y*v2y);
+	double m2 = grain2.get_m();
+
+
+	double x1 = grain1.r.get_x();
+	double y1 = grain1.r.get_y();
+	double x2 = grain2.r.get_x();
+	double y2 = grain2.r.get_y();
+	
+	double r1 = grain1.get_rayon();
+	double r2 = grain2.get_rayon();
+
+	double d = ((x1-x2)**2+(y1-y2)**2)**0.5;
+	double delta_tang = r1+r2-d;
+	double delta_norm = 2*(r1**2 - d**2/4 )**0.5; //C'est vraie ssi r1 est equiv r2
+
+	double phi = angle_collision(grain1,grain2);
+
+	double Fx = cos(phi)*kt * delta_tang**1.5 - sin(phi)*kn*delta_norm**1.5 ;
+	double Fy = sin(phi)*kt * delta_tang**1.5 + cos(phi)*kn*delta_norm**1.5 ;
+
+	if (v1x*Fx>0){
+	  double v1x_f = v1x - Fx*dt/m1;
+	}
+
+	if (v1x*Fx<=0){
+	  double v1x_f = v1x + Fx*dt/m1;
+	}
+
+	if (v2x*Fx<=0){
+	  double v2x_f = v2x + Fx*dt/m2;
+	}
+
+	if (v2x*Fx>0){
+	  double v2x_f = v2x - Fx*dt/m2;
+	}
+
+	
+	if (v1y*Fy>0){
+	  double v1y_f = v1y - Fy*dt/m1;
+	}
+
+	if (v1y*Fy<=0){
+	  double v1y_f = v1y + Fy*dt/m1;
+	}
+
+	if (v2y*Fy<=0){
+	  double v2y_f = v2y + Fy*dt/m2;
+	}
+
+	if (v2y*Fy>0){
+	  double v2y_f = v2y - Fy*dt/m2;
+	}
+
+
+
+	grain1.v.set_x(v1x_f);
+	grain1.v.set_y(v1y_f);
+	grain2.v.set_x(v2x_f);
+	grain2.v.set_y(v2y_f);
+
+
+	
+}
+
+
+
+
+
+
+
+
+
 void rebond_elastique(Grain grain1, Grain grain2)
 {
 	double v1x = grain1.v.get_x();
@@ -169,7 +262,7 @@ void rebond_elastique(Grain grain1, Grain grain2)
 	double theta1 = atan(v1y/v1x);
 	double theta2 = atan(v2y/v2x);
 	
-	phi = angle_collision(grain1,grain2);
+	double phi = angle_collision(grain1,grain2);
 	
 	double v1x_f =( (v1*cos(theta1 - phi)*(m1-m2) + 2*m2*v2*cos(theta2-phi))/(m1+m2) ) * cos(phi) - v1*sin(theta1 - phi)*sin(phi);
 	double v1y_f =( (v1*cos(theta1 - phi)*(m1-m2) + 2*m2*v2*cos(theta2-phi))/(m1+m2) ) * sin(phi) + v1*sin(theta1 - phi)*cos(phi);
@@ -177,10 +270,10 @@ void rebond_elastique(Grain grain1, Grain grain2)
 	double v2x_f =( (v2*cos(theta2 - phi)*(m2-m1) + 2*m1*v1*cos(theta1-phi))/(m1+m2) ) * cos(phi) - v2*sin(theta2 - phi)*sin(phi);
 	double v2y_f =( (v2*cos(theta2 - phi)*(m2-m1) + 2*m1*v1*cos(theta1-phi))/(m1+m2) ) * sin(phi) + v2*sin(theta2 - phi)*cos(phi);
 	
-	grain1.v.set_x(v1x);
-	grain1.v.set_y(v1y);
-	grain2.v.set_x(v2x);
-	grain2.v.set_y(v2y);
+	grain1.v.set_x(v1x_f);
+	grain1.v.set_y(v1y_f);
+	grain2.v.set_x(v2x_f);
+	grain2.v.set_y(v2y_f);
 }
 
 
@@ -197,7 +290,7 @@ int main()
 	
 	
 	double T = 10*dt;
-	fich.open("C:/Users/rodod/OneDrive/Bureau/Informatique/C/position.csv", ios::out);
+	fich.open("C:\Users\Antonio Vicente\Desktop\M1\FPT\Bulku\C++\position.csv", ios::out);
 	
 	for (double t=0; t < T; t = t+dt)
 	{
