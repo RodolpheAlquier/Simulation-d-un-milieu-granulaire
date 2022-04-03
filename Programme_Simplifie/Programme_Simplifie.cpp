@@ -8,15 +8,15 @@
 
 using namespace std;
 
-int N_grain = 100;
-double dt = 1e-3;
+int N_grain = 10;
+double dt = 1e-4;
 double xmin = 0., xmax = 1., ymin=0., ymax = 1.;
 
 void initialization (Grain* tab_grain, Grain* tab_grain_copy)
 {
 	double randNum = 0.;
-	double vxmin = 0, vxmax = (xmax-xmin)/(2.*dt);
-	double vymin = 0, vymax = (ymax-ymin)/(2.*dt);
+	double vxmin = 0, vxmax = (xmax-xmin)/(200.*dt);
+	double vymin = 0, vymax = (ymax-ymin)/(200.*dt);
 	srand(time(NULL));
 	
 	for (int i = 0; i<N_grain; i++)
@@ -28,7 +28,7 @@ void initialization (Grain* tab_grain, Grain* tab_grain_copy)
 			double y0 = ymin + (ymax-ymin)*randNum;
 			
 			Vecteur r0 (x0,y0);
-			double rayon = 0.01;
+			double rayon = 0.1;
 			double rho = 1.;
 			
 			Grain my_grain(r0,rayon,rho);
@@ -97,7 +97,7 @@ vector<int> contact_list (Grain* tab_grain, Grain main_grain)
 }
 
 
-void bord(Grain my_grain) //Simule un choc élastique avec le bord
+void bord(Grain& my_grain) //Simule un choc élastique avec le bord
 {
 	double x = my_grain.r.get_x();
 	double y = my_grain.r.get_y();
@@ -105,19 +105,24 @@ void bord(Grain my_grain) //Simule un choc élastique avec le bord
 	double vy = my_grain.v.get_y();
 	double rayon = my_grain.get_rayon();
 	
-	if((xmax-x) <= rayon or (x-xmin) <= rayon)
+	if((xmax-x) <= rayon and vx > 0)
 	{
-		cout << "Vx: " << vx << " ";
 		my_grain.v.set_x(-vx);  //Choc élastique avec le bord A MODIFIER AVEC LOI HERTZ
-		cout << my_grain.v.get_x() << endl;
 	}
-
 	
-	if((ymax-y) <= rayon or (y-ymin) <= rayon)
+	if ((x-xmin) <= rayon and vx < 0)
 	{
-		cout << "Vy: " << vy << " ";
-		my_grain.v.set_y(-vy);  //Choc élastique avec le bord
-		cout << my_grain.v.get_y() << endl;
+		my_grain.v.set_x(-vx);
+	}
+	
+	if((ymax-y) <= rayon and vy > 0)
+	{
+		my_grain.v.set_y(-vy);  //Choc élastique avec le bord A MODIFIER AVEC LOI HERTZ
+	}
+	
+	if ((y-ymin) <= rayon and vy < 0)
+	{
+		my_grain.v.set_y(-vy);
 	}
 
 }
@@ -195,7 +200,7 @@ void iteration (Grain* tab_grain, Grain* tab_grain_copy)
 }
 
 
-/*
+
 int main()
 {
 	Grain *tab_grain, *tab_grain_copy;
@@ -218,7 +223,7 @@ int main()
 			double y = tab_grain[i].r.get_y();
 			double vx = tab_grain[i].v.get_x();
 			double vy = tab_grain[i].v.get_y();
-			fich << x << " " << y << " " << vx << " " << vy << endl;
+			fich << x << " " << y << endl;
 		}
 		
 		iteration(tab_grain,tab_grain_copy);
@@ -229,33 +234,4 @@ int main()
 	
 	return 0;
 	
-}*/
-
-void modifie_x(Vecteur r)
-{
-	r.set_x(1000.);
-}
-
-int main() 
-{
-	Vecteur r (0.8,0.5);
-	double rayon = 0.2;
-	double rho =1.;
-	
-	Grain g1(r,rayon,rho);
-	
-	g1.v.set_x(1.);
-	g1.v.set_y(1.);
-	
-	cout << g1.v.get_x() << " " << g1.v.get_y() << endl;
-	
-	bord(g1);
-	
-	cout << g1.v.get_x() << " " << g1.v.get_y() << endl;
-	
-	cout << endl;
-	
-	cout << r.get_x() << endl;
-	modifie_x(r);
-	cout << " " << r.get_x() << endl;
 }
