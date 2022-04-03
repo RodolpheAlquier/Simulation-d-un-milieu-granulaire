@@ -147,3 +147,33 @@ double Grain::get_rayon() const
 {
 	return rayon;
 }
+
+double Grain::get_rho() const
+{
+	return rho;
+}
+
+bool operator!=(const Grain& grain1,const Grain& grain2){
+	
+    if (grain1.r.get_x() != grain2.r.get_x() or grain1.r.get_y() != grain2.r.get_y() 
+	    or grain1.v.get_x() != grain2.v.get_x() or grain1.v.get_y() != grain2.v.get_y() )
+			return true;
+			
+	return false;
+	
+}
+
+Grain & Grain::operator=(const Grain & grain_)
+{
+	r.set_x(grain_.r.get_x()) ;
+	r.set_y(grain_.r.get_y()) ;
+	v.set_x(grain_.v.get_x()) ;
+	v.set_y(grain_.v.get_y()) ;
+	a.set_x(grain_.a.get_x()) ;
+	a.set_y(grain_.a.get_y()) ;
+	
+	rayon = grain_.get_rayon();
+	m = grain_.get_m();
+	rho = grain_.get_rho();
+	
+}
