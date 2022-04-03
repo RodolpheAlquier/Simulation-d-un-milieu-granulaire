@@ -55,6 +55,18 @@ class Grain
   void set_m(double masse);
   
   
+	bool operator!=(const Grain& grain){
+	
+		if (r.get_x() != grain.r.get_x() or r.get_y() != grain.r.get_y() 
+			or v.get_x() != grain.v.get_x() or v.get_y() != grain.v.get_y() )
+				return true;
+			
+		return false;
+			
+		
+}
+  
+  
 };
 
 
