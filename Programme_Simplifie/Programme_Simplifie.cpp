@@ -22,27 +22,28 @@ void initialization (Grain* tab_grain, Grain* tab_grain_copy)
 	for (int i = 0; i<N_grain; i++)
 		{
 			randNum = (double)rand()/(RAND_MAX + 1); //Nombre aléatoire entre 0 et 1
-			double x0 = xmin + (xmax-xmin)/2.*randNum;
+			double x0 = xmin + (xmax-xmin)*randNum;
 			
 			randNum = (double)rand()/(RAND_MAX + 1);
-			double y0 = ymin + (ymax-ymin)/2.*randNum;
+			double y0 = ymin + (ymax-ymin)*randNum;
 			
 			Vecteur r0 (x0,y0);
-			double rayon = 1.;
+			double rayon = 0.01;
 			double rho = 1.;
+			
 			Grain my_grain(r0,rayon,rho);
 			
 			randNum = (double)rand()/(RAND_MAX + 1);
-			double vx0 = vxmin + (vxmax-vxmin)/2.*randNum;
+			double vx0 = vxmin + (vxmax-vxmin)*randNum;
 			my_grain.v.set_x(vx0);
 			
 			randNum = (double)rand()/(RAND_MAX + 1);
-			double vy0 = vymin + (vymax-vymin)/2.*randNum;
+			double vy0 = vymin + (vymax-vymin)*randNum;
 			my_grain.v.set_y(vy0);
 			
 			
 			tab_grain[i] = my_grain;
-			tab_grain_copy[i] = tab_grain[i];
+			tab_grain_copy[i] = my_grain;
 			
 		}
 	
@@ -105,10 +106,20 @@ void bord(Grain my_grain) //Simule un choc élastique avec le bord
 	double rayon = my_grain.get_rayon();
 	
 	if((xmax-x) <= rayon or (x-xmin) <= rayon)
+	{
+		cout << "Vx: " << vx << " ";
 		my_grain.v.set_x(-vx);  //Choc élastique avec le bord A MODIFIER AVEC LOI HERTZ
+		cout << my_grain.v.get_x() << endl;
+	}
+
 	
 	if((ymax-y) <= rayon or (y-ymin) <= rayon)
+	{
+		cout << "Vy: " << vy << " ";
 		my_grain.v.set_y(-vy);  //Choc élastique avec le bord
+		cout << my_grain.v.get_y() << endl;
+	}
+
 }
 
 double angle_collision(Grain grain1, Grain grain2)
@@ -160,16 +171,13 @@ void iteration (Grain* tab_grain, Grain* tab_grain_copy)
 	{
 		bord(tab_grain[i]);
 		
-		for (int i =0; i<N_grain; i++)
-		{
-			Grain my_grain = tab_grain[i];
-			vector<int> _contact_list = contact_list(tab_grain,my_grain);
+		vector<int> _contact_list = contact_list(tab_grain,tab_grain[i]);
 			
-			for(int j = 0; j < _contact_list.size(); j++)
-			{
-				rebond_elastique(my_grain, tab_grain[j]);
-			}
+		for(int j = 0; j < _contact_list.size(); j++)
+		{
+			rebond_elastique(tab_grain[i], tab_grain[j]);
 		}
+	
 		
 		double x = tab_grain[i].r.get_x();
 		double y = tab_grain[i].r.get_y();
@@ -187,7 +195,7 @@ void iteration (Grain* tab_grain, Grain* tab_grain_copy)
 }
 
 
-
+/*
 int main()
 {
 	Grain *tab_grain, *tab_grain_copy;
@@ -199,7 +207,7 @@ int main()
 	initialization(tab_grain,tab_grain_copy);
 	
 	
-	double T = 10*dt;
+	double T = 1000*dt;
 	fich.open("C:/Users/rodod/OneDrive/Bureau/Informatique/C/position.csv", ios::out);
 	
 	for (double t=0; t < T; t = t+dt)
@@ -221,4 +229,33 @@ int main()
 	
 	return 0;
 	
+}*/
+
+void modifie_x(Vecteur r)
+{
+	r.set_x(1000.);
+}
+
+int main() 
+{
+	Vecteur r (0.8,0.5);
+	double rayon = 0.2;
+	double rho =1.;
+	
+	Grain g1(r,rayon,rho);
+	
+	g1.v.set_x(1.);
+	g1.v.set_y(1.);
+	
+	cout << g1.v.get_x() << " " << g1.v.get_y() << endl;
+	
+	bord(g1);
+	
+	cout << g1.v.get_x() << " " << g1.v.get_y() << endl;
+	
+	cout << endl;
+	
+	cout << r.get_x() << endl;
+	modifie_x(r);
+	cout << " " << r.get_x() << endl;
 }
