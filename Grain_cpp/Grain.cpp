@@ -165,6 +165,7 @@ bool operator!=(const Grain& grain1,const Grain& grain2){
 
 Grain & Grain::operator=(const Grain & grain_)
 {
+	if(& grain_ != this){
 	r.set_x(grain_.r.get_x()) ;
 	r.set_y(grain_.r.get_y()) ;
 	v.set_x(grain_.v.get_x()) ;
@@ -175,5 +176,7 @@ Grain & Grain::operator=(const Grain & grain_)
 	rayon = grain_.get_rayon();
 	m = grain_.get_m();
 	rho = grain_.get_rho();
+	}
+	return *this;
 	
 }
