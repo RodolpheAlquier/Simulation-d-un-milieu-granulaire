@@ -50,21 +50,25 @@ class Grain
   Grain(Vecteur r0, double rayon0, double rho0);
 
   double get_rayon() const;
-
   double get_m() const;
   void set_m(double masse);
+  double get_rho() const;
   
-  
-	bool operator!=(const Grain& grain){
+  bool operator!=(const Grain& grain){
 	
 		if (r.get_x() != grain.r.get_x() or r.get_y() != grain.r.get_y() 
 			or v.get_x() != grain.v.get_x() or v.get_y() != grain.v.get_y() )
 				return true;
 			
 		return false;
-			
-		
-}
+  }
+  
+  Grain & operator=(const Grain & grain_);
+  
+  
+
+
+
   
   
 };
