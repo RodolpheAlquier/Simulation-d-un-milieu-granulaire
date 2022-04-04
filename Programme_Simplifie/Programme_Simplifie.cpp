@@ -11,6 +11,8 @@ using namespace std;
 int N_grain = 10;
 double dt = 1e-4;
 double xmin = 0., xmax = 1., ymin=0., ymax = 1.;
+double g = 9.81;
+double dissipation = 0.5;
 
 void initialization (Grain* tab_grain, Grain* tab_grain_copy)
 {
@@ -141,7 +143,7 @@ double angle_collision(Grain grain1, Grain grain2)
 	return theta1 - theta2;
 }
 
-void rebond_elastique(Grain grain1, Grain grain2)
+void rebond_elastique(Grain &grain1, Grain &grain2)
 {
 	double v1x = grain1.v.get_x();
 	double v1y = grain1.v.get_y();
@@ -164,10 +166,16 @@ void rebond_elastique(Grain grain1, Grain grain2)
 	double v2x_f =( (v2*cos(theta2 - phi)*(m2-m1) + 2*m1*v1*cos(theta1-phi))/(m1+m2) ) * cos(phi) - v2*sin(theta2 - phi)*sin(phi);
 	double v2y_f =( (v2*cos(theta2 - phi)*(m2-m1) + 2*m1*v1*cos(theta1-phi))/(m1+m2) ) * sin(phi) + v2*sin(theta2 - phi)*cos(phi);
 	
-	grain1.v.set_x(v1x_f);
-	grain1.v.set_y(v1y_f);
-	grain2.v.set_x(v2x_f);
-	grain2.v.set_y(v2y_f);
+	grain1.v.set_x(dissipation*v1x_f);
+	grain1.v.set_y(dissipation*v1y_f);
+	grain2.v.set_x(dissipation*v2x_f);
+	grain2.v.set_y(dissipation*v2y_f);
+}
+
+void gravite(Grain& my_grain)
+{
+	double vy = my_grain.v.get_y();
+	my_grain.v.set_y(vy - g*dt);
 }
 
 void iteration (Grain* tab_grain, Grain* tab_grain_copy)
@@ -182,7 +190,8 @@ void iteration (Grain* tab_grain, Grain* tab_grain_copy)
 		{
 			rebond_elastique(tab_grain[i], tab_grain[j]);
 		}
-	
+		
+		gravite(tab_grain[i]);
 		
 		double x = tab_grain[i].r.get_x();
 		double y = tab_grain[i].r.get_y();
@@ -235,3 +244,5 @@ int main()
 	return 0;
 	
 }
+
+
