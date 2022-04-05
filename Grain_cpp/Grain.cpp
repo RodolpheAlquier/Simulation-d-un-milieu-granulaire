@@ -64,6 +64,17 @@ Vecteur operator*(double a, const Vecteur& vecteur1){
     return Vecteur(a*vecteur1.get_x() , a* vecteur1.get_y());
 }
 
+Vecteur & Vecteur::operator=(const Vecteur & vecteur_)
+{
+	if(& vecteur_ != this){
+	x = vecteur_.get_x();
+	y = vecteur_.get_y();
+	z = vecteur_.get_z();
+	}
+	return *this;
+	
+}
+
 
 //Constructeurs: Grains
 
@@ -152,6 +163,17 @@ double Grain::get_rho() const
 {
 	return rho;
 }
+
+int Grain::get_color() const
+{
+    return color;
+}
+
+void Grain::set_color(int couleur)
+{
+    color=couleur;
+}
+
 
 bool operator!=(const Grain& grain1,const Grain& grain2){
 	
