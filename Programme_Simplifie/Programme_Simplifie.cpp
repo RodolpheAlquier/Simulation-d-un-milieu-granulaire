@@ -17,8 +17,8 @@ double dissipation = 0.5;
 void initialization (Grain* tab_grain, Grain* tab_grain_copy)
 {
 	double randNum = 0.;
-	double vxmin = 0, vxmax = (xmax-xmin)/(200.*dt);
-	double vymin = 0, vymax = (ymax-ymin)/(200.*dt);
+	double vxmin = 0, vxmax = (xmax-xmin)/(10.*dt);
+	double vymin = 0, vymax = (ymax-ymin)/(10.*dt);
 	srand(time(NULL));
 	
 	for (int i = 0; i<N_grain; i++)
@@ -64,19 +64,21 @@ void copy_tab(Grain* tab1, Grain* tab2, int N)
 
 bool est_en_contact(Grain grain1, Grain grain2)
 {
-	Vecteur v = grain1.v - grain2.v;
+	Vecteur r = grain1.r - grain2.r;
 	
 	double r1 = grain1.get_rayon();
 	double r2 = grain2.get_rayon();
 	
-	if (v.norme() < r1+r2)
+	
+	
+	if (r.norme() < r1+r2)
 		return true;
 		
 	return false;
 }
 
 
-vector<int> contact_list (Grain* tab_grain, Grain main_grain)
+vector<int> contact_list (Grain* tab_grain, Grain& main_grain)
 
 /**
  * @brief Takes a tab of grain, the index of one of them  
@@ -91,8 +93,10 @@ vector<int> contact_list (Grain* tab_grain, Grain main_grain)
 	{
 		
 		if (est_en_contact(main_grain, tab_grain[i]) and tab_grain[i] != main_grain) // Does not consider the main_grain in contact_list
+		{
+			main_grain.set_color(1);
 			list_contact.push_back(i);
-			
+		}
 	}
 	
 	return list_contact;
@@ -184,6 +188,8 @@ void iteration (Grain* tab_grain, Grain* tab_grain_copy)
 	{
 		bord(tab_grain[i]);
 		
+		tab_grain[i].set_color(0);
+		
 		vector<int> _contact_list = contact_list(tab_grain,tab_grain[i]);
 			
 		for(int j = 0; j < _contact_list.size(); j++)
@@ -222,6 +228,7 @@ int main()
 	
 	
 	double T = 1000*dt;
+	
 	fich.open("C:/Users/rodod/OneDrive/Bureau/Informatique/C/position.csv", ios::out);
 	
 	for (double t=0; t < T; t = t+dt)
@@ -232,7 +239,10 @@ int main()
 			double y = tab_grain[i].r.get_y();
 			double vx = tab_grain[i].v.get_x();
 			double vy = tab_grain[i].v.get_y();
-			fich << x << " " << y << endl;
+			
+			int couleur = tab_grain[i].get_color();
+			
+			fich << x << " " << y << " " << couleur << endl;
 		}
 		
 		iteration(tab_grain,tab_grain_copy);
@@ -244,5 +254,3 @@ int main()
 	return 0;
 	
 }
-
-
