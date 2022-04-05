@@ -27,6 +27,7 @@ class Vecteur
   friend Vecteur operator-(const Vecteur& vecteur1, const Vecteur& vecteur2);
   friend Vecteur operator*(double a, const Vecteur& vecteur1);
   friend double operator*(const Vecteur& vecteur1, const Vecteur& vecteur2);
+  Vecteur & operator=(const Vecteur & vecteur_);
 
   
   
@@ -44,6 +45,8 @@ class Grain
   double rayon;
   double rho;
   double m;
+  
+  int color; //1 si contacte 0 sinon
 
  public :
 
@@ -53,6 +56,9 @@ class Grain
   double get_m() const;
   void set_m(double masse);
   double get_rho() const;
+  
+  int get_color() const;
+  void set_color(int couleur);
   
   bool operator!=(const Grain& grain){
 	
