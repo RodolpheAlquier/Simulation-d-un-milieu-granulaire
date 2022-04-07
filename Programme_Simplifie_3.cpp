@@ -9,8 +9,9 @@
 using namespace std;
 
 int N_grain = 100;
-double dt = 1e-2;
+double dt = 1e-3;
 double xmin = 0., xmax = 1., ymin=0., ymax = 1.;
+double vFond = 0.;
 double g = 10;
 double dissipation = 0.9;
 
@@ -122,9 +123,16 @@ void bord(Grain & my_grain) //Simule un choc élastique avec le bord
 	
 	if((ymax-y) <= rayon and vy > 0)//Bord inf
 	{
-	  
-	  my_grain.v.set_y(-vy);  //Choc élastique avec le bord A MODIFIER AVEC LOI HERTZ
 	  my_grain.r.set_y(ymax-rayon);
+	  my_grain.v.set_y(vFond-vy);  //Choc élastique avec le bord A MODIFIER AVEC LOI HERTZ
+	  
+	}
+	
+	if(y + rayon > ymax)//Bord inf
+	{
+	  my_grain.r.set_y(ymax-rayon);
+	  my_grain.v.set_y(vFond-vy);  //Choc élastique avec le bord A MODIFIER AVEC LOI HERTZ
+	  
 	}
 	
 	if ((y-ymin) <= rayon and vy < 0)
@@ -159,14 +167,25 @@ void updatePositions(Grain &grain1, Grain &grain2)
 	
 }
 
+double positionFond(double A, double omega, double t)
+{
+	return 1. + A*sin(omega*t);
+}
+
+double vitesseFond(double A, double omega, double t)
+{
+	return A*omega*cos(omega*t);
+}
+
+
 void iteration (Grain* tab_grain)
 {
 	for(int i = 0; i<N_grain; i++)
 	  {
 	    bord(tab_grain[i]);
 	    gravite(tab_grain[i]);
-	    // cout<<tab_grain[i].v.get_x()<<endl;
-
+		
+	
 	    
 	  for(int j = 0; j <N_grain; j++){
 	    
@@ -225,6 +244,8 @@ void iteration (Grain* tab_grain)
 
 int main()
 {
+
+	
 	Grain *tab_grain, *tab_grain_copy;
 	fstream fich;
 	
@@ -233,7 +254,7 @@ int main()
 	initialization(tab_grain);
 
 	
-	double T = 1000*dt;
+	double T = 10000*dt;
 	fich.open("C:/Users/rodod/OneDrive/Bureau/Informatique/C/position.csv", ios::out);
 	
 	for (double t=0; t < T; t = t+dt)
@@ -244,8 +265,12 @@ int main()
 			double y = tab_grain[i].r.get_y();
 			double vx = tab_grain[i].v.get_x();
 			double vy = tab_grain[i].v.get_y();
-			fich << x << " " << y << endl;
+			fich << x << " " << y << " " << ymax << endl;
 		}
+		
+		ymax = positionFond(0.1,10.,t);
+		vFond = vitesseFond(0.1,10.,t);
+		
 		
 		iteration(tab_grain);
 		
