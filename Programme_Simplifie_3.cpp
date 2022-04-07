@@ -8,28 +8,23 @@
 
 using namespace std;
 
-int N_grain = 10;
+int N_grain = 100;
 double dt = 1e-2;
 double xmin = 0., xmax = 1., ymin=0., ymax = 1.;
-double g = 1;
-double dissipation = 0.5;
+double g = 10;
+double dissipation = 0.9;
 
-bool collapse(Grain my_grain,Grain *tab_grain ,int i){
-  for(int j=0; j<i;j++){
-      Vecteur r1 = tab_grain[j].r;
-      Vecteur r2 =  my_grain.r;
-      double ray1 =  tab_grain[j].get_rayon();
-      double ray2 = my_grain.get_rayon();
-      Vecteur Pos = r2-r1;
-      
-      if (Pos.norme() <= ray1+ray2 )
-	{
-	  return false;
-	}
-    }
-  return true;
-  
+
+
+bool testCollision (Grain & grain1, Grain & grain2)
+{
+	double R1 = grain1.get_rayon(), R2 = grain2.get_rayon();
+	Vecteur r1 = grain1.r, r2 = grain2.r;
+	
+	return ((r1-r2).norme()*(r1-r2).norme() <= (R1+R2)*(R1+R2));
 }
+
+
 
 
 void initialization (Grain* tab_grain)
@@ -48,10 +43,29 @@ void initialization (Grain* tab_grain)
 	    double y0 = ymin + (ymax-ymin)*randNum;
 			
 	    Vecteur r0 (x0,y0);
-	    double rayon = 0.05;
+	    double rayon = 0.01;
 	    double rho = 1.;
 			
 	    Grain my_grain(r0,rayon,rho);
+		
+		for(int j = 0; j < i; j++)
+		{
+			if(testCollision(my_grain,tab_grain[j]))
+			{
+				randNum = (double)rand()/(RAND_MAX);
+				x0 = xmin + (xmax-xmin)*randNum;
+			
+				randNum = (double)rand()/(RAND_MAX);
+				y0 = ymin + (ymax-ymin)*randNum;
+				
+				my_grain.r.set_x(x0);
+				my_grain.r.set_y(y0);
+				
+				j = -1; //Pour recommencer à 0 sachant qu'il y aura j++ juste après
+			}
+		}
+		
+		
 			
 	    randNum = (double)rand()/(RAND_MAX);
 	    double vx0 = vxmin + (vxmax-vxmin)*randNum;
@@ -60,23 +74,14 @@ void initialization (Grain* tab_grain)
 	    randNum = (double)rand()/(RAND_MAX);
 	    double vy0 = vymin + (vymax-vymin)*randNum;
 	    my_grain.v.set_y(vy0);
-			
-	    	
-	    		
-	    while(collapse(my_grain,tab_grain,i) == false ){
-	      randNum = (double)rand()/(RAND_MAX); 
-	      double x0 = xmin + (xmax-xmin)*randNum;
-			
-	      randNum = (double)rand()/(RAND_MAX);
-	      double y0 = ymin + (ymax-ymin)*randNum;
 
-	      my_grain.r.set_x(x0);
-	      my_grain.r.set_y(y0);
-	      
-	    }
+
 	    tab_grain[i] = my_grain;
 	  }
+	  
+	
 }
+
 
 
 
@@ -135,7 +140,23 @@ void bord(Grain & my_grain) //Simule un choc élastique avec le bord
 void gravite(Grain& my_grain)
 {
 	double vy = my_grain.v.get_y();
-	my_grain.v.set_y(vy + g*dt);
+	my_grain.v.set_y(vy + g*dt); // Car l'axe des y est vers le bas
+}
+
+void updatePositions(Grain &grain1, Grain &grain2)
+{
+	double x1 = grain1.r.get_x(), y1 = grain1.r.get_y(), x2 = grain2.r.get_x(), y2 = grain2.r.get_y();
+	double R1 = grain1.get_rayon(), R2 = grain2.get_rayon();
+	double distance, overlap;
+	
+	distance = (grain1.r-grain2.r).norme();
+	overlap = distance - R1 - R2;
+	
+	Vecteur deplacementUnitaire = (1./distance)*(grain2.r - grain1.r);
+	
+	grain2.r = grain2.r - overlap/2 * deplacementUnitaire;
+	grain1.r = grain1.r + overlap/2 * deplacementUnitaire;
+	
 }
 
 void iteration (Grain* tab_grain)
@@ -167,15 +188,16 @@ void iteration (Grain* tab_grain)
 	    Vecteur v2_f;
 	
 	    
-	    if (Pos.norme() <= ray1+ray2 +ray1/1000 and i<j)
+	    if (Pos.norme() <= ray1+ray2 +ray1*1e-10 and i<j)
 	      {
+			  updatePositions(tab_grain[i],tab_grain[j]);
 		v1_f = v1 - 2*(m2/(m1+m2))*(( ((v1-v2)*(r1-r2))/(Distance*Distance))*(r1-r2));
 		v2_f = v2 - 2*(m1/(m1+m2))*(( ((v2-v1)*(r2-r1))/(Distance*Distance))*(r2-r1));
 		
-		tab_grain[i].v.set_x(v1_f.get_x());
-		tab_grain[i].v.set_y(v1_f.get_y());
-		tab_grain[j].v.set_x(v2_f.get_x());
-		tab_grain[j].v.set_y(v2_f.get_y());
+		tab_grain[i].v.set_x(dissipation*v1_f.get_x());
+		tab_grain[i].v.set_y(dissipation*v1_f.get_y());
+		tab_grain[j].v.set_x(dissipation*v2_f.get_x());
+		tab_grain[j].v.set_y(dissipation*v2_f.get_y());
 
 
 		
@@ -210,12 +232,9 @@ int main()
 	
 	initialization(tab_grain);
 
-	Vecteur X(5,2);
-	Vecteur Y(3,-1);
-	cout << X*Y <<" " << Y.norme() <<endl; 
 	
 	double T = 1000*dt;
-	fich.open("position.csv", ios::out);
+	fich.open("C:/Users/rodod/OneDrive/Bureau/Informatique/C/position.csv", ios::out);
 	
 	for (double t=0; t < T; t = t+dt)
 	{
@@ -237,3 +256,4 @@ int main()
 	return 0;
 	
 }
+
