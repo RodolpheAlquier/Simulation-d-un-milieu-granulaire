@@ -8,7 +8,10 @@
 
 using namespace std;
 
-int N_grain = 1000;
+
+//Variables générales:
+
+int N_grain = 100;
 double dt = 1e-3;
 double xmin = 0., xmax = 1, ymin=0., ymax = 4.;
 double vFond = 0.;
@@ -21,6 +24,7 @@ double T = 10000*dt;
 double phi=0;
 
 
+//Savoir si deux particules se touchent ou pas:
 
 bool testCollision (Grain & grain1, Grain & grain2)
 {
@@ -32,21 +36,18 @@ bool testCollision (Grain & grain1, Grain & grain2)
 
 
 
-
+//Initialisation du tableau Grain
 void initialization (Grain* tab_grain)
 {
 	double randNum = 0.;
 	double vxmin = 0, vxmax = 0;
 	double vymin = 0, vymax = (ymax-ymin);
 	srand(time(NULL));
-
-
-
 	
 	for (int i = 0; i<N_grain; i++)
 	  {
 	    randNum = (double)rand()/(RAND_MAX); //Nombre aléatoire entre 0 et 1
-	    double x0 = xmin + (xmax-xmin)*randNum;
+	    double x0 = xmin + (xmax-xmin)*randNum; 
 
 	    randNum = (double)rand()/(RAND_MAX);
 	    double y0 = (ymax-ymin)*0.3 + (ymax-ymin)*randNum;
@@ -54,25 +55,26 @@ void initialization (Grain* tab_grain)
 	    Vecteur r0 (x0,y0);
 	    double rayon = 0.02;
 	    double rho = 1.;
-	    //cout<<"Je passe par là"<<endl;
 
-	    if (i==0){
+	    // Création d'une bille pour grande
+	     if (i==0){
 	      rayon = 0.1;
-	      //cout<<"ok"<<endl;
 	      x0= xmax*0.5;
-	      y0= ymax-4*rayon;
+	      y0= ymax-rayon;
 	      r0.set_x(x0);
 	      r0.set_y(y0);
-	      //cout<<"x0: " <<r0.get_x() << "y0: " << r0.get_y() <<endl;
-	    }
+	      }
 
 	    Grain my_grain(r0,rayon,rho);
 
+
+	    //On vérifie qu'il n'y a pas billes que se chévauchent
+	    
 	    for(int j = 0; j < i; j++)
 	      {
 		if(testCollision(my_grain,tab_grain[j]))
 		  {
-		    randNum = (double)rand()/(RAND_MAX);
+		    randNum = (double)rand()/(RAND_MAX); //On recalcul un autre nombre aléatoire
 		    x0 = xmin + (xmax-xmin)*randNum;
 
 		    randNum = (double)rand()/(RAND_MAX);
@@ -104,22 +106,6 @@ void initialization (Grain* tab_grain)
 
 
 
-
-
-void copy_tab(Grain* tab1, Grain* tab2, int N)
-/**
- * @brief Copy tab2 in tab1. Works for any matrix of size N
- */
-{
-	for(int i =0; i < N; i++)
-		tab1[i] = tab2[i];
-}
-
-
-
-
-
-
 void bord(Grain & my_grain) //Simule un choc élastique avec le bord
 {
 	double x = my_grain.r.get_x();
@@ -128,77 +114,78 @@ void bord(Grain & my_grain) //Simule un choc élastique avec le bord
 	double vy = my_grain.v.get_y();
 	double rayon = my_grain.get_rayon();
 
-	if((xmax-x) <= rayon and vx > 0)//Bord droite
-	{
-	  my_grain.v.set_x(-vx);  //Choc élastique avec le bord A MODIFIER AVEC LOI HERTZ
+	if((xmax-x) <= rayon and vx > 0){         //Bord droite
+	  my_grain.v.set_x(-vx);                  //Choc élastique avec le bord
 	  my_grain.r.set_x(xmax-rayon);
-	  my_grain.v.set_y(vy*0.1);
+	  my_grain.v.set_y(vy*0.5);
 	}
 
-	if ((x-xmin) <= rayon and vx < 0)//Bord gauche
-	{
+	if ((x-xmin) <= rayon and vx < 0){     //Bord gauche
 	  my_grain.v.set_x(-vx);
-	  my_grain.v.set_y(vy*0.1);
+	  my_grain.v.set_y(vy*0.5);            //Frottement normales
 	  my_grain.r.set_x(xmin+rayon);
 	}
 
-	if((ymax-y) <= rayon and vy > 0)//Bord inf
-	{
+	if((ymax-y) <= rayon and vy > 0){      //Bord inf
 	  my_grain.r.set_y(ymax-rayon);
-	  my_grain.v.set_y(-vy);  //Choc élastique avec le bord A MODIFIER AVEC LOI HERTZ
-
+	  my_grain.v.set_x(vx*0.5);
+	  my_grain.v.set_y(-vy); 
 	}
 
-	if ((y-ymin) <= rayon and vy < 0)
-	{
+	if ((y-ymin) <= rayon and vy < 0){       //Bord sup
 	  my_grain.v.set_y(-vy);
 	  my_grain.r.set_y(ymin+rayon);
-
 	}
-
 }
 
 
-void gravite(Grain& my_grain)
-{
+
+
+void gravite(Grain& my_grain){
+  
 	double vy = my_grain.v.get_y();
 	my_grain.v.set_y(vy + g*dt); // Car l'axe des y est vers le bas
 }
 
-void updatePositions(Grain &grain1, Grain &grain2)
-{
+
+
+
+void updatePositions(Grain &grain1, Grain &grain2){
+  
 	double x1 = grain1.r.get_x(), y1 = grain1.r.get_y(), x2 = grain2.r.get_x(), y2 = grain2.r.get_y();
 	double R1 = grain1.get_rayon(), R2 = grain2.get_rayon();
 	double distance, overlap;
 
 	distance = (grain1.r-grain2.r).norme();
-	overlap = distance - R1 - R2;
+	overlap = distance - R1 - R2; //On calcule l'overlap entre les deux billes lorsqu'elles se chévauchent
 
 	Vecteur deplacementUnitaire = (1./distance)*(grain2.r - grain1.r);
 
 	grain2.r = grain2.r - overlap/2 * deplacementUnitaire;
 	grain1.r = grain1.r + overlap/2 * deplacementUnitaire;
-
 }
 
 
 
-void acc_Boite(Grain & my_grain, double t,double phi)
-{
+void acc_Boite(Grain & my_grain, double t,double phi){
+  
   double vy = my_grain.v.get_y();
   double ay = A*omega*omega*cos(omega*(t-phi));
   my_grain.v.set_y(vy - ay*dt);
-  //cout<<"omega*(t-phi) :"<<omega*(t-phi) <<endl;
+  
 }
 
-void friction (Grain& grain)
-{
+
+
+void friction (Grain& grain){
+  
   double vx = grain.v.get_x();
   double vy = grain.v.get_y();
-
   grain.v.set_x(dissipation*vx);
   grain.v.set_y(dissipation*vy);
+  
 }
+
 
 
 void iteration (Grain* tab_grain,double t, double phi)
@@ -206,40 +193,6 @@ void iteration (Grain* tab_grain,double t, double phi)
 	for(int i = 0; i<N_grain; i++)
 	  {
 	    bord(tab_grain[i]);
-	    gravite(tab_grain[i]);
-	    friction(tab_grain[i]);
-	    
-
-
-	    //Mouvement de la boîte
-
-	    if (3*T/10+ pi/omega  >=t and t >=3*T/10){
-		  
-	      //cout<<"salut"<<endl;
-	      phi=3*T/10;
-	      acc_Boite(tab_grain[i],t,phi);
-	    }
-
-	
-	    if (5*T/10+pi/omega  >=t and t >=5*T/10){
-	     phi=5*T/10;
-	     acc_Boite(tab_grain[i],t,phi);
-	    }
-
-		
-	    if (7*T/10+pi/omega  >=t and t>=7*T/10){
-	      phi=7*T/10;
-	      acc_Boite(tab_grain[i],t,phi);
-	    }
-
-	    if (9*T/10+pi/omega  >=t and t >=9*T/10){
-	      phi=9*T/10;
-	      acc_Boite(tab_grain[i],t,phi);
-	    }
-
-
-	    
-
 
 	  for(int j = 0; j <N_grain; j++){
 
@@ -261,9 +214,9 @@ void iteration (Grain* tab_grain,double t, double phi)
 	    Vecteur v2_f;
 
 
-	    if (Pos.norme() <= ray1+ray2 +ray1*1e-10 and i<j)
+	    if (Pos.norme() <= ray1+ray2  and i<j)
 	      {
-			  updatePositions(tab_grain[i],tab_grain[j]);
+		updatePositions(tab_grain[i],tab_grain[j]);
 		v1_f = v1 - 2*(m2/(m1+m2))*(( ((v1-v2)*(r1-r2))/(Distance*Distance))*(r1-r2));
 		v2_f = v2 - 2*(m1/(m1+m2))*(( ((v2-v1)*(r2-r1))/(Distance*Distance))*(r2-r1));
 
@@ -271,16 +224,116 @@ void iteration (Grain* tab_grain,double t, double phi)
 		tab_grain[i].v.set_y(v1_f.get_y());
 		tab_grain[j].v.set_x(v2_f.get_x());
 		tab_grain[j].v.set_y(v2_f.get_y());
-
-
-
-
-		//cout<<"Ok1"<<endl;
 	      }
 
 	  }
 
+	  gravite(tab_grain[i]);
+	  friction(tab_grain[i]);
+	  acc_Boite(tab_grain[i],t,phi);
 
+	  
+	    //Mouvement de la boîte
+	    /*
+	    if (0.5*T/10+pi/omega  >=t and t >=0.5*T/10){
+	     phi=0.5*T/10;
+	     acc_Boite(tab_grain[i],t,phi);
+	    }
+	    
+	    if (1.5*T/10+pi/omega  >=t and t >=1.5*T/10){
+	     phi=1.5*T/10;
+	     acc_Boite(tab_grain[i],t,phi);
+	    }
+
+	    if (2.5*T/10+pi/omega  >=t and t >=2.5*T/10){
+	     phi=2.5*T/10;
+	     acc_Boite(tab_grain[i],t,phi);
+	    }
+
+	    if (3.5*T/10+pi/omega  >=t and t >=3.5*T/10){
+	     phi=3.5*T/10;
+	     acc_Boite(tab_grain[i],t,phi);
+	    }
+
+	    if (4.5*T/10+pi/omega  >=t and t >=4.5*T/10){
+	     phi=4.5*T/10;
+	     acc_Boite(tab_grain[i],t,phi);
+	    }
+
+	    if (5.5*T/10+pi/omega  >=t and t >=5.5*T/10){
+	     phi=5.5*T/10;
+	     acc_Boite(tab_grain[i],t,phi);
+	    }
+
+	    if (6.5*T/10+pi/omega  >=t and t >=6.5*T/10){
+	     phi=6.5*T/10;
+	     acc_Boite(tab_grain[i],t,phi);
+	    }
+
+	    if (7.5*T/10+pi/omega  >=t and t >=7.5*T/10){
+	     phi=7.5*T/10;
+	     acc_Boite(tab_grain[i],t,phi);
+	    }
+
+	    if (8.5*T/10+pi/omega  >=t and t >=8.5*T/10){
+	     phi=8.5*T/10;
+	     acc_Boite(tab_grain[i],t,phi);
+	    }
+
+	    if (9.5*T/10+pi/omega  >=t and t >=9.5*T/10){
+	     phi=9.5*T/10;
+	     acc_Boite(tab_grain[i],t,phi);
+	     }
+		 
+	    if (T/10+pi/omega  >=t and t >=T/10){
+	     phi=T/10;
+	     acc_Boite(tab_grain[i],t,phi);
+	    }
+	     
+	    if (2*T/10+pi/omega  >=t and t >=2*T/10){
+	     phi=2*T/10;
+	     acc_Boite(tab_grain[i],t,phi);
+	    }
+
+	    if (3*T/10+ pi/omega  >=t and t >=3*T/10){
+		  
+	      //cout<<"salut"<<endl;
+	      phi=3*T/10;
+	      acc_Boite(tab_grain[i],t,phi);
+	    }
+	    
+	     if (4*T/10+pi/omega  >=t and t >=4*T/10){
+	     phi=4*T/10;
+	     acc_Boite(tab_grain[i],t,phi);
+	    }
+	
+	    if (5*T/10+pi/omega  >=t and t >=5*T/10){
+	     phi=5*T/10;
+	     acc_Boite(tab_grain[i],t,phi);
+	    }
+	    
+	     if (6*T/10+pi/omega  >=t and t >=6*T/10){
+	     phi=6*T/10;
+	     acc_Boite(tab_grain[i],t,phi);
+	    }
+	     
+	    if (7*T/10+pi/omega  >=t and t>=7*T/10){
+	      phi=7*T/10;
+	      acc_Boite(tab_grain[i],t,phi);
+	    }
+	    	    
+	     if (8*T/10+pi/omega  >=t and t>=8*T/10){
+	      phi=8*T/10;
+	      acc_Boite(tab_grain[i],t,phi);
+	    }
+
+	    if (9*T/10+pi/omega  >=t and t >=9*T/10){
+	      phi=9*T/10;
+	      acc_Boite(tab_grain[i],t,phi);
+	    }
+	    */
+
+	  
 	  double x= tab_grain[i].r.get_x();
 	  double y= tab_grain[i].r.get_y();
 	  double vx= tab_grain[i].v.get_x();
@@ -288,10 +341,6 @@ void iteration (Grain* tab_grain,double t, double phi)
 
 	  tab_grain[i].r.set_x(x + vx*dt);
 	  tab_grain[i].r.set_y(y + vy*dt);
-
-
-
-
 	}
 }
 
@@ -300,7 +349,7 @@ int main()
 {
 
 
-	Grain *tab_grain, *tab_grain_copy;
+	Grain *tab_grain;
 	fstream fich;
 
 	tab_grain = (Grain*)malloc(N_grain*sizeof(Grain));
@@ -310,17 +359,16 @@ int main()
 
 	fich.open("position.csv", ios::out);
 
-	for (double t=0; t < T; t = t+dt)
-	{
-		for(int i = 0; i<N_grain; i++)
-		{
+	for (double t=0; t < T; t = t+dt){
+		for(int i = 0; i<N_grain; i++){
+		  
 			double x = tab_grain[i].r.get_x();
 			double y = tab_grain[i].r.get_y();
 			double rayon = tab_grain[i].get_rayon();
 			double vx = tab_grain[i].v.get_x();
 			double vy = tab_grain[i].v.get_y();
 			double rho = tab_grain[i].get_rho();
-			  fich << x << " " << y << " " << ymax << " " << rayon <<" "<< rho <<endl;
+			fich << x << " " << y << " " << ymax << " " << rayon <<" "<< rho <<endl;
 		}
 
 		iteration(tab_grain,t,phi);
