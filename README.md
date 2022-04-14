@@ -30,13 +30,9 @@ Ainsi nous crééons un fichier .csv où se trouvent tous les données de notre 
 
 ## Fabriqué avec
 
-- Jupyter notebook
-- Spider
-- CodeLite
-
-_exemples :_
-* [Materialize.css](http://materializecss.com) - Framework CSS (front-end)
-* [Atom](https://atom.io/) - Editeur de textes
+- [Jupyter notebook](https://jupyter.org/)
+- [Spider](https://www.spyder-ide.org/)
+- [CodeLite](https://codelite.org/)
 
 
 ## Auteurs
