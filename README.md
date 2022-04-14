@@ -44,5 +44,4 @@ Ainsi nous crééons un fichier .csv où se trouvent tous les données de notre 
 
 
 ## License
-
-Ce projet est sous licence ``exemple: WTFTPL`` - voir le fichier [LICENSE.md](LICENSE.md) pour plus d'informations
+Licence libre
