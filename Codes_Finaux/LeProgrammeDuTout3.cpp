@@ -54,7 +54,6 @@ void initialization (Grain* tab_grain)
 	    double rayon = 0.02;
 	    double rho = 1.;
 
-	    //cout<< "Je passe " <<endl;
 
 	    // Création d'une bille de grand volume
 	    /* if (i==0){
@@ -233,7 +232,6 @@ void iteration (Grain* tab_grain,double t)
 
 	  gravite(tab_grain[i]);
 	  friction(tab_grain[i]);
-	  //acc_Boite(tab_grain[i],t,phi);
 
 	  
 	    //Mouvement de la boîte
@@ -376,7 +374,6 @@ int main()
 		cout << "Chargement ... " << t/T*100 << " %" << endl;
 	}
 	fich.close();
-	cout<<"Ok0"<<endl;
 	return 0;
 
 }
