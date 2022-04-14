@@ -1,60 +1,51 @@
 # Simulation-d-un-milieu-granulaire
 
 
-[![forthebadge](http://forthebadge.com/images/badges/built-with-love.svg)](http://forthebadge.com) [![forthebadge](https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Logo_Universit%C3%A9_Paris-Saclay.svg/2560px-Logo_Universit%C3%A9_Paris-Saclay.svg.png)
+[![forthebadge](http://forthebadge.com/images/badges/built-with-love.svg)](http://forthebadge.com)
 
 Projet C++/Simulation FPT pour l'effet des noix du brésil
 
 ### Pré-requis
 
-Pour lancer notre projet 
+Pour lancer notre projet vous aurez besoin de:
 
-- Programme 1
-- Programme 2
-- etc...
+- Un terminal linux ou un environnement de développement (IDE) en C++
+- Un terminal linux , un environnement de développement en python ou accès a jupter notebook
 
 ### Installation
 
-Les étapes pour installer votre programme....
+Pas nécessaire de réaliser aucune installation
 
-Dites ce qu'il faut faire...
-
-_exemple_: Executez la commande ``telnet mapscii.me`` pour commencer ensuite [...]
-
-
-Ensuite vous pouvez montrer ce que vous obtenez au final...
 
 ## Démarrage
 
-Dites comment faire pour lancer votre projet
+Pour demmareez notre projet il faut tous les archives .cpp , .hpp et .ipynb
+
+Tout d'abord il faut executer les programmes .cpp et .hpp avec la commende:
+
+```sh
+   g++ LeProgrammeDuTout3.cpp Grain.cpp -o Programme
+   ```
+Ainsi nous crééons un fichier .csv où se trouvent tous les données de notre simulations. Pour l'affichage nous utilisons jupyter notebook mais autres IDE sont possibles pour lancer le code en python.
 
 ## Fabriqué avec
 
-Entrez les programmes/logiciels/ressources que vous avez utilisé pour développer votre projet
+- Jupyter notebook
+- Spider
+- CodeLite
 
 _exemples :_
 * [Materialize.css](http://materializecss.com) - Framework CSS (front-end)
 * [Atom](https://atom.io/) - Editeur de textes
 
-## Contributing
-
-Si vous souhaitez contribuer, lisez le fichier [CONTRIBUTING.md](https://example.org) pour savoir comment le faire.
-
-## Versions
-Listez les versions ici 
-_exemple :_
-**Dernière version stable :** 5.0
-**Dernière version :** 5.1
-Liste des versions : [Cliquer pour afficher](https://github.com/your/project-name/tags)
-_(pour le lien mettez simplement l'URL de votre projets suivi de ``/tags``)_
 
 ## Auteurs
-Listez le(s) auteur(s) du projet ici !
-* **Jhon doe** _alias_ [@outout14](https://github.com/outout14)
 
-Lisez la liste des [contributeurs](https://github.com/your/project/contributors) pour voir qui à aidé au projet !
+* **Rodolphe ALQUIER**
 
-_(pour le lien mettez simplement l'URL de votre projet suivi de ``/contirubors``)_
+* **Antonio VICENTE BECERRIL** 
+
+
 
 ## License
 
