@@ -28,6 +28,10 @@ Tout d'abord il faut executer les programmes .cpp et .hpp avec la commande:
    ```
 Ainsi nous créeons un fichier .csv où se trouvent tous les données de notre simulations. Pour l'affichage nous utilisons jupyter notebook mais d'autres IDE sont possibles pour lancer le code en python.
 
+## Prise en main
+
+Pour gérer le nombre de grain d'une simulation il faut modifier ```N_grain```
+
 ## Fabriqué avec
 
 - [Jupyter notebook](https://jupyter.org/)
