@@ -30,7 +30,7 @@ Ainsi nous créeons un fichier .csv où se trouvent tous les données de notre s
 
 ## Prise en main
 
-Pour gérer le nombre de grain d'une simulation il faut modifier ```N_grain```
+Pour gérer le nombre de grain d'une simulation il faut modifier ```N_grain```. **Attention**, il faudra également modifier  ```N``` dans le code python
 
 ## Fabriqué avec
 
