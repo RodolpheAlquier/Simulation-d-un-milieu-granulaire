@@ -19,14 +19,14 @@ Pas nécessaire de réaliser aucune installation
 
 ## Démarrage
 
-Pour demmareez notre projet il faut tous les archives .cpp , .hpp et .ipynb
+Pour démarrer notre projet il faut toutes les archives .cpp , .hpp et .ipynb
 
-Tout d'abord il faut executer les programmes .cpp et .hpp avec la commende:
+Tout d'abord il faut executer les programmes .cpp et .hpp avec la commande:
 
 ```sh
    g++ LeProgrammeDuTout3.cpp Grain.cpp -o Programme
    ```
-Ainsi nous crééons un fichier .csv où se trouvent tous les données de notre simulations. Pour l'affichage nous utilisons jupyter notebook mais autres IDE sont possibles pour lancer le code en python.
+Ainsi nous créeons un fichier .csv où se trouvent tous les données de notre simulations. Pour l'affichage nous utilisons jupyter notebook mais d'autres IDE sont possibles pour lancer le code en python.
 
 ## Fabriqué avec
 
